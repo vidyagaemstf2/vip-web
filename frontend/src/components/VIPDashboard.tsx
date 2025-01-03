@@ -6,6 +6,7 @@ import { Users, UserPlus } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useAuth } from "../contexts/AuthContext";
+import LogsView from "./LogsView";
 
 const API_BASE_URL = "http://localhost:3000/api";
 
@@ -147,10 +148,13 @@ const VIPDashboard = () => {
         <CardContent className="p-6">
           <h2 className="text-2xl mb-4">Your VIP Status</h2>
           {vips.find((vip) => vip.playerid === user.id) ? (
-            <VipStatusCard vip={vips.find((vip) => vip.playerid === user.id)} />
+            <VipStatusCard
+              vip={vips.find((vip) => vip.playerid === user.id)}
+            />
           ) : (
             <p>You don't have VIP status.</p>
           )}
+          <LogsView isAdmin={false} />
         </CardContent>
       </Card>
     );
@@ -425,6 +429,7 @@ const VIPDashboard = () => {
                     })}
                   </tbody>
                 </table>
+                <LogsView isAdmin={true} />
               </div>
             )}
 
