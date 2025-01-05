@@ -8,7 +8,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useAuth } from "../contexts/AuthContext";
 import LogsView from "./LogsView";
 
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = "http://localhost:3000";
+const API_VIP_URL = `${API_BASE_URL}/api/vips`;
 
 const VIPDashboard = () => {
   const [activeTab, setActiveTab] = useState("list");
@@ -36,7 +37,7 @@ const VIPDashboard = () => {
   const handleApiError = (error) => {
     if (error.status === 401) {
       // Handle not authenticated
-      window.location.href = "http://localhost:3000/auth/steam";
+      window.location.href = `${API_BASE_URL}/auth/steam`;
     } else if (error.status === 403) {
       // Handle not authorized
       setError("You do not have permission to perform this action");
@@ -47,7 +48,7 @@ const VIPDashboard = () => {
 
   const fetchVips = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/vips`, {
+      const response = await fetch(API_VIP_URL, {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
@@ -138,7 +139,12 @@ const VIPDashboard = () => {
   };
 
   const handleLogout = () => {
-    window.location.href = `${API_BASE_URL}/auth/logout`;
+    fetch(`${API_BASE_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    }).then(() => {
+      window.location.href = "/";
+    });
   };
 
   if (!isAdmin) {
@@ -148,9 +154,7 @@ const VIPDashboard = () => {
         <CardContent className="p-6">
           <h2 className="text-2xl mb-4">Your VIP Status</h2>
           {vips.find((vip) => vip.playerid === user.id) ? (
-            <VipStatusCard
-              vip={vips.find((vip) => vip.playerid === user.id)}
-            />
+            <VipStatusCard vip={vips.find((vip) => vip.playerid === user.id)} />
           ) : (
             <p>You don't have VIP status.</p>
           )}
@@ -162,7 +166,7 @@ const VIPDashboard = () => {
 
   const handleEdit = async (vip) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/vips/${vip.playerid}`, {
+      const response = await fetch(`${API_VIP_URL}/${vip.playerid}`, {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -191,22 +195,19 @@ const VIPDashboard = () => {
 
   const handleExtend = async (vip) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/vips/${vip.playerid}/extend`,
-        {
-          method: "PUT",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            duration: parseInt(extendDuration.duration),
-            timeFormat: extendDuration.timeFormat,
-            admin_playername: user.displayName,
-            admin_playerid: user.id,
-          }),
-        }
-      );
+      const response = await fetch(`${API_VIP_URL}/${vip.playerid}/extend`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          duration: parseInt(extendDuration.duration),
+          timeFormat: extendDuration.timeFormat,
+          admin_playername: user.displayName,
+          admin_playerid: user.id,
+        }),
+      });
 
       if (!response.ok) {
         throw response;
@@ -223,7 +224,7 @@ const VIPDashboard = () => {
 
   const handleAddVip = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/vips`, {
+      const response = await fetch(API_VIP_URL, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -253,7 +254,7 @@ const VIPDashboard = () => {
 
   const handleRemoveVip = async (playerid) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/vips/${playerid}`, {
+      const response = await fetch(`${API_VIP_URL}/${playerid}`, {
         method: "DELETE",
         credentials: "include",
         headers: {
